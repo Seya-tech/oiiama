@@ -45,7 +45,6 @@ const (
 var (
 	gpuMutex      sync.Mutex
 	bootstrapped  bool
-	cpuCapability CPUCapability
 	cpus          []CPUInfo
 	cudaGPUs      []CudaGPUInfo
 	nvcudaLibPath string
@@ -221,7 +220,6 @@ func GetGPUInfo() GpuInfoList {
 		slog.Info("looking for compatible GPUs")
 		bootstrapErrors = []error{}
 		needRefresh = false
-		cpuCapability = GetCPUCapability()
 		var memInfo C.mem_info_t
 
 		mem, err := GetCPUMem()
@@ -238,22 +236,11 @@ func GetGPUInfo() GpuInfoList {
 				GpuInfo: GpuInfo{
 					memInfo:        mem,
 					Library:        "cpu",
-					Variant:        cpuCapability.String(),
 					ID:             "0",
 					DependencyPath: depPath,
 				},
 				CPUs: details,
 			},
-		}
-
-		// Fallback to CPU mode if we're lacking required vector extensions on x86
-		if cpuCapability < GPURunnerCPUCapability && runtime.GOARCH == "amd64" {
-			err := fmt.Errorf("CPU does not have minimum vector extensions, GPU inference disabled.  Required:%s  Detected:%s", GPURunnerCPUCapability, cpuCapability)
-			slog.Warn(err.Error())
-			bootstrapErrors = append(bootstrapErrors, err)
-			bootstrapped = true
-			// No need to do any GPU discovery, since we can't run on them
-			return GpuInfoList{cpus[0].GpuInfo}
 		}
 
 		// Load ALL libraries
