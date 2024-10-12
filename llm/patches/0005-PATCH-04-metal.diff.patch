@@ -1,25 +1,25 @@
-From 29411d9a9d2b6a0af6425ffe88498f17f71f7d5d Mon Sep 17 00:00:00 2001
-From: Michael Yang <mxyng@pm.me>
-Date: Mon, 16 Sep 2024 15:53:12 -0700
-Subject: [PATCH] 04-metal.diff
+From 86814263d7c6e7b5a5df7cb12f4f64cbf4a78ac7 Mon Sep 17 00:00:00 2001
+From: Liu Yuan <namei.unix@gmail.com>
+Date: Sun, 13 Oct 2024 01:48:46 +0800
+Subject: [PATCH 5/8] [PATCH] 04-metal.diff
 
 ---
  ggml/src/ggml-metal.m | 30 +++++++++++++-----------------
  1 file changed, 13 insertions(+), 17 deletions(-)
 
 diff --git a/ggml/src/ggml-metal.m b/ggml/src/ggml-metal.m
-index 91b5e61b..9cfa72ac 100644
+index 172a0f92..32451b23 100644
 --- a/ggml/src/ggml-metal.m
 +++ b/ggml/src/ggml-metal.m
-@@ -1734,27 +1734,23 @@ static enum ggml_status ggml_metal_graph_compute(
-                         // to the matrix-vector kernel
-                         int ne11_mm_min = 1;
+@@ -1727,27 +1727,23 @@ static void ggml_metal_encode_node(
+                 // to the matrix-vector kernel
+                 int ne11_mm_min = 1;
  
 -#if 0
-                         // the numbers below are measured on M2 Ultra for 7B and 13B models
-                         // these numbers do not translate to other devices or model sizes
-                         // TODO: need to find a better approach
--                        if ([ctx->device.name isEqualToString:@"Apple M2 Ultra"]) {
+                 // the numbers below are measured on M2 Ultra for 7B and 13B models
+                 // these numbers do not translate to other devices or model sizes
+                 // TODO: need to find a better approach
+-                        if ([device.name isEqualToString:@"Apple M2 Ultra"]) {
 -                            switch (src0t) {
 -                                case GGML_TYPE_F16:  ne11_mm_min = 2;  break;
 -                                case GGML_TYPE_Q8_0: ne11_mm_min = 7;  break;
@@ -53,5 +53,5 @@ index 91b5e61b..9cfa72ac 100644
                          // for now the matrix-matrix multiplication kernel only works on A14+/M1+ SoCs
                          // AMD GPU and older A-chips will reuse matrix-vector multiplication kernel
 -- 
-2.46.0
+2.34.1
 
