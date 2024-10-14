@@ -274,16 +274,6 @@ go build .
 
 ROCm requires elevated privileges to access the GPU at runtime. On most distros you can add your user account to the `render` group, or run as root.
 
-#### Advanced CPU Settings
-
-Running make will compile several CPU runners which can run on different CPU families. At runtime, Ollama will auto-detect the best variation to load. 
-
-To build your own custom CPU runner, set CUSTOM_CPU_FLAGS to a space delimited list of CPU flags. For example, to build a custom CPU runner with avx512, use the following:
-```
-make -C llama CUSTOM_CPU_FLAGS="avx avx2 avx512f avx512bw avx512vbmi avx512vnni avx512bf16"
-go build .
-```
-
 #### Containerized Linux Build
 
 If you have Docker available, you can build linux binaries with `OLLAMA_NEW_RUNNERS=1 ./scripts/build_linux.sh` which has the CUDA and ROCm dependencies included. The resulting binary is placed in `./dist`
@@ -361,6 +351,6 @@ go build .
 
 To enable a larger set of vector features
 ```
-make -C llama GPU_RUNNER_CPU_FLAGS="avx avx2 avx512f avx512bw avx512vbmi avx512vnni avx512bf16"
+make -C llama GPU_RUNNER_CPU_FLAGS="avx avx2"
 go build .
 ```

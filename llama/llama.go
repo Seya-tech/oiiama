@@ -34,16 +34,6 @@ package llama
 #cgo linux CXXFLAGS: -D_GNU_SOURCE
 #cgo linux,amd64 LDFLAGS: -L${SRCDIR}/build/Linux/amd64
 #cgo linux,amd64 LDFLAGS: -L${SRCDIR}/build/Linux/amd64
-#cgo linux,amd64,avx512bf16 CFLAGS: -mavx512bf16 -D__AVX512BF16__
-#cgo linux,amd64,avx512bf16 CXXFLAGS: -mavx512bf16 -D__AVX512BF16__
-#cgo linux,amd64,avx512bw CFLAGS: -mavx512bw
-#cgo linux,amd64,avx512bw CXXFLAGS: -mavx512bw
-#cgo linux,amd64,avx512f CFLAGS: -mavx512f
-#cgo linux,amd64,avx512f CXXFLAGS: -mavx512f
-#cgo linux,amd64,avx512vbmi CFLAGS: -mavx512vbmi -D__AVX512VBMI__
-#cgo linux,amd64,avx512vbmi CXXFLAGS: -mavx512vbmi -D__AVX512VBMI__
-#cgo linux,amd64,avx512vnni CFLAGS: -mavx512vnni -D__AVX512VNNI__
-#cgo linux,amd64,avx512vnni CXXFLAGS: -mavx512vnni -D__AVX512VNNI__
 #cgo linux,arm64 CFLAGS: -D__aarch64__ -D__ARM_NEON -D__ARM_FEATURE_FMA -D__ARM_FEATURE_MATMUL_INT8
 #cgo linux,arm64 CXXFLAGS: -D__aarch64__ -D__ARM_NEON -D__ARM_FEATURE_FMA -D__ARM_FEATURE_MATMUL_INT8
 #cgo linux,arm64 LDFLAGS: -L${SRCDIR}/build/Linux/arm64
