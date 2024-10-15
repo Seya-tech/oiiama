@@ -32,9 +32,8 @@ var (
 )
 
 type Runner struct {
-	Dir          string
-	Exe          string
-	Requirements RunnerRequirements
+	Dir string
+	Exe string
 }
 
 // Return the location where runners are stored
@@ -296,33 +295,13 @@ func GetAvailableServers(payloadsDir string) map[string]Runner {
 	}
 
 	servers := make(map[string]Runner)
-outer:
 	for _, file := range files {
-		// TODO cache this so we're not executing over and over
+		// TODO gather requirements from the runners
 		runnerName := filepath.Base(filepath.Dir(file))
-		req, err := GatherRequirements(file)
-		if err != nil {
-			// Expected behavior for C++ runners for now...
-			slog.Debug("failed to gather requirements", "runner", file, "error", err)
-		} else {
-			// Make sure this runner can run on this system
-			if runtime.GOARCH == "amd64" {
-				for _, req := range req.CPUFeatures {
-					if req == "" {
-						continue
-					}
-					if !IsCompatible(req) {
-						slog.Warn("disabling runner incompatible with this systems CPU", "missing_cpu_feature", req, "runner", runnerName)
-						continue outer
-					}
-				}
-			}
-		}
-		slog.Debug("availableServers : found", "file", file, "cpu_features", req.CPUFeatures)
+		slog.Debug("availableServers : found", "file", file)
 		servers[runnerName] = Runner{
-			Dir:          filepath.Dir(file),
-			Exe:          file,
-			Requirements: req,
+			Dir: filepath.Dir(file),
+			Exe: file,
 		}
 	}
 
@@ -397,12 +376,13 @@ func PickBestCPURunnerName(availableServers map[string]Runner) string {
 	// assume that's the optimal runner
 	featureLen := 0
 	bestCPURunnerName := "cpu"
-	for runnerName, runner := range availableServers {
+	for runnerName := range availableServers {
 		if !strings.HasPrefix(runnerName, "cpu") {
 			continue
 		}
-		if len(runner.Requirements.CPUFeatures) > featureLen {
-			featureLen = len(runner.Requirements.CPUFeatures)
+		// TODO replace with requirement processing
+		if len(runnerName) > featureLen {
+			featureLen = len(runnerName)
 			bestCPURunnerName = runnerName
 		}
 	}

@@ -20,6 +20,8 @@ import (
 	"sync"
 	"unsafe"
 
+	"golang.org/x/sys/cpu"
+
 	"github.com/ollama/ollama/envconfig"
 	"github.com/ollama/ollama/format"
 )
@@ -241,6 +243,16 @@ func GetGPUInfo() GpuInfoList {
 				},
 				CPUs: details,
 			},
+		}
+
+		// TODO remove this check once requirements are wired up
+		if runtime.GOARCH == "amd64" && !cpu.X86.HasAVX {
+			err := fmt.Errorf("CPU does not have minimum vector extensions, GPU inference disabled.")
+			slog.Warn(err.Error())
+			bootstrapErrors = append(bootstrapErrors, err)
+			bootstrapped = true
+			// No need to do any GPU discovery, since we can't run on them
+			return GpuInfoList{cpus[0].GpuInfo}
 		}
 
 		// Load ALL libraries
