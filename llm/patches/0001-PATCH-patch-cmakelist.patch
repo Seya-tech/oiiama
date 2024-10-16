@@ -1,0 +1,22 @@
+From 514a8a8f3e2a74bae93faed0af3b13dc7e63ffa9 Mon Sep 17 00:00:00 2001
+From: Liu Yuan <namei.unix@gmail.com>
+Date: Sun, 13 Oct 2024 01:33:34 +0800
+Subject: [PATCH 1/8] [PATCH] patch cmakelist
+
+---
+ CMakeLists.txt | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 64a33537..38abe806 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -210,3 +210,5 @@ if (LLAMA_BUILD_COMMON AND LLAMA_BUILD_EXAMPLES)
+     add_subdirectory(examples)
+     add_subdirectory(pocs)
+ endif()
++
++add_subdirectory(../ext_server ext_server) # ollama
+-- 
+2.34.1
+
