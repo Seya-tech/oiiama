@@ -31,6 +31,11 @@ var (
 	runnersDir = ""
 )
 
+type Runner struct {
+	Dir string
+	Exe string
+}
+
 // Return the location where runners are stored
 // If runners are payloads, this will either extract them
 // or refresh them if any have disappeared due to tmp cleaners
@@ -274,7 +279,7 @@ func cleanupTmpDirs() {
 // variant prefixed with '_' as the separator. For example, "cuda_v11" and
 // "cuda_v12" or "cpu" and "cpu_avx2". Any library without a variant is the
 // lowest common denominator
-func GetAvailableServers(payloadsDir string) map[string]string {
+func GetAvailableServers(payloadsDir string) map[string]Runner {
 	if payloadsDir == "" {
 		slog.Error("empty runner dir")
 		return nil
@@ -289,10 +294,15 @@ func GetAvailableServers(payloadsDir string) map[string]string {
 		return nil
 	}
 
-	servers := make(map[string]string)
+	servers := make(map[string]Runner)
 	for _, file := range files {
+		// TODO gather requirements from the runners
+		runnerName := filepath.Base(filepath.Dir(file))
 		slog.Debug("availableServers : found", "file", file)
-		servers[filepath.Base(filepath.Dir(file))] = filepath.Dir(file)
+		servers[runnerName] = Runner{
+			Dir: filepath.Dir(file),
+			Exe: file,
+		}
 	}
 
 	return servers
@@ -305,7 +315,7 @@ func ServersForGpu(info gpu.GpuInfo) []string {
 	// glob workDir for files that start with ollama_
 	availableServers := GetAvailableServers(runnersDir)
 	requested := info.Library
-	if info.Variant != gpu.CPUCapabilityNone.String() {
+	if info.Variant != "" {
 		requested += "_" + info.Variant
 	}
 
@@ -341,21 +351,7 @@ func ServersForGpu(info gpu.GpuInfo) []string {
 	if !(runtime.GOOS == "darwin" && runtime.GOARCH == "arm64") {
 		// Load up the best CPU variant if not primary requested
 		if info.Library != "cpu" {
-			variant := gpu.GetCPUCapability()
-			// If no variant, then we fall back to default
-			// If we have a variant, try that if we find an exact match
-			// Attempting to run the wrong CPU instructions will panic the
-			// process
-			if variant != gpu.CPUCapabilityNone {
-				for cmp := range availableServers {
-					if cmp == "cpu_"+variant.String() {
-						servers = append(servers, cmp)
-						break
-					}
-				}
-			} else {
-				servers = append(servers, "cpu")
-			}
+			servers = append(servers, PickBestCPURunnerName(availableServers))
 		}
 
 		if len(servers) == 0 {
@@ -371,14 +367,24 @@ func ServerForCpu() string {
 	if runtime.GOOS == "darwin" && runtime.GOARCH == "arm64" {
 		return "metal"
 	}
-	variant := gpu.GetCPUCapability()
-	availableServers := GetAvailableServers(runnersDir)
-	if variant != gpu.CPUCapabilityNone {
-		for cmp := range availableServers {
-			if cmp == "cpu_"+variant.String() {
-				return cmp
-			}
+	return PickBestCPURunnerName(GetAvailableServers(runnersDir))
+}
+
+func PickBestCPURunnerName(availableServers map[string]Runner) string {
+	// The CPU runners will be filtered to those that are compatible
+	// with this system so find the one with the most enabled flags and
+	// assume that's the optimal runner
+	featureLen := 0
+	bestCPURunnerName := "cpu"
+	for runnerName := range availableServers {
+		if !strings.HasPrefix(runnerName, "cpu") {
+			continue
+		}
+		// TODO replace with requirement processing
+		if len(runnerName) > featureLen {
+			featureLen = len(runnerName)
+			bestCPURunnerName = runnerName
 		}
 	}
-	return "cpu"
+	return bestCPURunnerName
 }

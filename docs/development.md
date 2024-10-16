@@ -274,16 +274,6 @@ go build .
 
 ROCm requires elevated privileges to access the GPU at runtime. On most distros you can add your user account to the `render` group, or run as root.
 
-#### Advanced CPU Settings
-
-By default, running `make` will compile a few different variations
-of the LLM library based on common CPU families and vector math capabilities,
-including a lowest-common-denominator which should run on almost any 64 bit CPU
-somewhat slowly. At runtime, Ollama will auto-detect the optimal variation to
-load. 
-
-Custom CPU settings are not currently supported in the new Go server build but will be added back after we complete the transition.
-
 #### Containerized Linux Build
 
 If you have Docker available, you can build linux binaries with `OLLAMA_NEW_RUNNERS=1 ./scripts/build_linux.sh` which has the CUDA and ROCm dependencies included. The resulting binary is placed in `./dist`
@@ -348,3 +338,19 @@ pacman -S mingw-w64-clang-aarch64-clang mingw-w64-clang-aarch64-gcc-compat mingw
 ```
 
 You will need to ensure your PATH includes go, cmake, gcc and clang mingw32-make to build ollama from source. (typically `C:\msys64\clangarm64\bin\`)
+
+### Custom CPU flags for GPU Runners
+
+For both Windows and Linux GPU runners on x86, by deafult Ollama compiles with the "avx" CPU vector feature enabled.  This provides a good performance balance when loading large models that split across GPU and CPU with broad compatibility.  Some users may prefer no vector extensions (e.g. older Xeon/Celeron processors, or hypervisors that mask the vector features) while other users may prefer turning on many more vector extensions to further improve performance for split model loads.  Both scenarios can be accomplished by setting `GPU_RUNNER_CPU_FLAGS` during `make`
+
+For example, to disable all vector flags for the GPU runners
+```
+make -C llama GPU_RUNNER_CPU_FLAGS="" -j 5
+go build .
+```
+
+To enable a larger set of vector features
+```
+make -C llama GPU_RUNNER_CPU_FLAGS="avx avx2"
+go build .
+```
