@@ -1,8 +1,17 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Michael Yang <mxyng@pm.me>
+Date: Mon, 16 Sep 2024 15:53:12 -0700
+Subject: [PATCH] metal
+
+---
+ ggml/src/ggml-metal.m | 30 +++++++++++++-----------------
+ 1 file changed, 13 insertions(+), 17 deletions(-)
+
 diff --git a/ggml/src/ggml-metal.m b/ggml/src/ggml-metal.m
-index 0207b787..b5e9884b 100644
+index 91b5e61b..9cfa72ac 100644
 --- a/ggml/src/ggml-metal.m
 +++ b/ggml/src/ggml-metal.m
-@@ -1396,27 +1396,23 @@ static enum ggml_status ggml_metal_graph_compute(
+@@ -1734,27 +1734,23 @@ static enum ggml_status ggml_metal_graph_compute(
                          // to the matrix-vector kernel
                          int ne11_mm_min = 1;
  
